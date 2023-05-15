@@ -4,19 +4,24 @@ import { WorkoutDetails } from '../components/WorkoutDetails';
 import { WorkoutForm } from '../components/WorkoutForm';
 // Context
 import { useWorkoutsContext } from '../hooks/useWorkoutsContext';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 export const Home = () => {
 	const { workouts, dispatch } = useWorkoutsContext();
+	const { user } = useAuthContext();
 
-	useEffect(
-		() => {
+	useEffect(() => {
+		if(user) {
 			getAllWorkouts();
-		},
-		[ dispatch ]
-	);
+		}
+	}, [dispatch, user]);
 
 	const getAllWorkouts = async () => {
-		const res = await fetch('/api/workouts');
+		const res = await fetch('/api/workouts', {
+			headers: {
+				'Authorization': `Bearer ${user.token}`
+			}
+		});
 		const data = await res.json();
 
 		dispatch({ type: 'SET_WORKOUTS', payload: data });
